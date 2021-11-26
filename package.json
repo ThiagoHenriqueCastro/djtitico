@@ -24,6 +24,7 @@
     "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "^2.1.2",
     "libsodium-wrappers": "^0.7.9",
+    "lyrics-finder": "^21.7.0",
     "node-opus": "^0.3.3",
     "ytdl-core": "^4.9.1"
   }

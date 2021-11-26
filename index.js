@@ -1,7 +1,8 @@
 import { Client, Intents, MessageEmbed } from "discord.js";
 import { Player } from "discord-music-player";
-import * as dotenv from "dotenv";
-dotenv.config();
+import lyricsFinder from "lyrics-finder";
+// import * as dotenv from "dotenv";
+//dotenv.config();
 
 const client = new Client({
   intents: [
@@ -19,11 +20,10 @@ const colors = {
 };
 
 client.login(process.env.TOKEN);
-let textChannel;
-let messageAuthor;
 
 const player = new Player(client, {
-  leaveOnEmpty: false,
+  leaveOnEmpty: true,
+  leaveOnStop: true,
 });
 
 const prefix = ">";
@@ -48,7 +48,6 @@ client.on("messageCreate", async (message) => {
   )
     return;
 
-  textChannel = message;
   let args = message.content.slice(prefix.length).trim().split(" ");
   let cmd = args.shift()?.toLowerCase();
   let channel = message.member.voice.channel;
@@ -84,7 +83,11 @@ client.on("messageCreate", async (message) => {
       search
     );
 
-    let queue = player.createQueue(message.guild.id);
+    let queue = player.createQueue(message.guild.id, {
+      data: {
+        message: message,
+      },
+    });
     await queue.join(channel);
 
     let song = (await search.includes("playlist"))
@@ -105,7 +108,7 @@ client.on("messageCreate", async (message) => {
       colors.Waiting,
       "DJ Titico pulou essa musica!"
     );
-    guildQueue.skip();
+    guildQueue.skip(args[0] ? args[0] : null);
     return;
   }
 
@@ -160,47 +163,86 @@ client.on("messageCreate", async (message) => {
     );
     return;
   }
+
+  if (cmd === "lyrics" || cmd === "l") {
+    try {
+      let _lyrics = await lyricsFinder(
+        guildQueue.nowPlaying.author,
+        guildQueue.nowPlaying.name
+      );
+      if (_lyrics)
+        embedBuilder(
+          client,
+          message,
+          colors.Success,
+          guildQueue.nowPlaying.name,
+          _lyrics
+        );
+      else throw "No lyrics found!";
+    } catch (err) {
+      embedBuilder(
+        client,
+        message,
+        colors.Error,
+        "Erro ao conseguir a letra :(",
+        "Não existe letra para essa musica disponivel!"
+      );
+      console.log(err);
+    }
+
+    return;
+  }
 });
 
 player
   .on("songFirst", (queue, song) => {
     embedBuilder(
       client,
-      textChannel,
+      queue.data.message,
       colors.Success,
       "DJ Titico esta tocando!",
-      `${song.name}\  -  \`${song.duration}\` \n\npor ${song.author}`,
+      `${song.name}\  -  \`${song.duration}\` \n\n ${
+        song.requestedBy ? `por ${song.author}` : ``
+      }`,
       song.thumbnail
     );
   })
   .on("songAdd", (queue, song) => {
     embedBuilder(
       client,
-      textChannel,
+      queue.data.message,
       colors.Success,
       "DJ Titico adicionou uma musica!",
-      `${song.name}\  -  \`${song.duration}\` \n\npor ${song.author}`,
+      `${song.name}\  -  \`${song.duration}\` \n\n ${
+        song.requestedBy ? `por ${song.author}` : ``
+      }`,
       song.thumbnail
     );
   })
   .on("songChanged", (queue, song) => {
     embedBuilder(
       client,
-      textChannel,
+      queue.data.message,
       colors.Success,
       "DJ Titico agora está tocando!",
-      `${song.name}\  -  \`${song.duration}\` \n\npor ${song.author}`,
+      `${song.name}\  -  \`${song.duration}\` \n\n ${
+        song.requestedBy ? `por ${song.author}` : ``
+      }`,
       song.thumbnail
     );
   })
   .on("error", (error, queue) => {
     embedBuilder(
       client,
-      textChannel,
+      queue.data.message,
       colors.error,
       "DJ Titico ta com defeito",
       "Algum problema ocorreu! Favor contatar Titico para solução"
     );
+  })
+  .on("channelEmpty", (queue) => {
+    console.log("Leaving!");
+    queue.connection.leave();
   });
 
 export function embedBuilder(
