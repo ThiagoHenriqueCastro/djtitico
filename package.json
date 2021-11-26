@@ -10,7 +10,7 @@
     "node": "16.0.0"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "npm i lyrics-finder -g && node index.js",
     "start:prod": "node build/index.js",
     "tsc": "tsc"
   },

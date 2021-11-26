@@ -2,7 +2,7 @@ import { Client, Intents, MessageEmbed } from "discord.js";
 import { Player } from "discord-music-player";
 import lyricsFinder from "lyrics-finder";
 // import * as dotenv from "dotenv";
-//dotenv.config();
+// dotenv.config();
 
 const client = new Client({
   intents: [
@@ -178,7 +178,7 @@ client.on("messageCreate", async (message) => {
           guildQueue.nowPlaying.name,
           _lyrics
         );
-      else throw "No lyrics found!";
+      else throw "No lyrics found!\n" + _lyrics;
     } catch (err) {
       embedBuilder(
         client,
