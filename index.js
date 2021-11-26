@@ -1,7 +1,7 @@
 import { Client, Intents, MessageEmbed } from "discord.js";
 import { Player } from "discord-music-player";
-//import * as dotenv from "dotenv";
-//dotenv.config();
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const client = new Client({
   intents: [
@@ -11,9 +11,16 @@ const client = new Client({
   ],
 });
 
-client.login(process.env.TOKEN);
+const colors = {
+  Success: "GREEN",
+  Waiting: "YELLOW",
+  IDLE: "BLUE",
+  Error: "RED",
+};
 
+client.login(process.env.TOKEN);
 let textChannel;
+let messageAuthor;
 
 const player = new Player(client, {
   leaveOnEmpty: false,
@@ -50,7 +57,7 @@ client.on("messageCreate", async (message) => {
     embedBuilder(
       client,
       message,
-      "RED",
+      colors.Error,
       "Erro ao utilizar o comando!",
       "Você precisa estar em um canal para tocar uma musica."
     );
@@ -63,7 +70,7 @@ client.on("messageCreate", async (message) => {
       embedBuilder(
         client,
         message,
-        "RED",
+        colors.error,
         "Erro ao utilizar o comando!",
         "Digite o nome ou o link da musica!"
       );
@@ -72,7 +79,7 @@ client.on("messageCreate", async (message) => {
     embedBuilder(
       client,
       message,
-      "YELLOW",
+      colors.Waiting,
       "DJ Titico está pesquisando...",
       search
     );
@@ -92,7 +99,12 @@ client.on("messageCreate", async (message) => {
   }
 
   if (cmd === "skip") {
-    embedBuilder(client, message, "YELLOW", "DJ Titico pulou essa musica!");
+    embedBuilder(
+      client,
+      message,
+      colors.Waiting,
+      "DJ Titico pulou essa musica!"
+    );
     guildQueue.skip();
     return;
   }
@@ -101,7 +113,7 @@ client.on("messageCreate", async (message) => {
     embedBuilder(
       client,
       message,
-      "RED",
+      colors.error,
       "Mandaram o DJ Titico parar!",
       "Vishkk \nFui expulso"
     );
@@ -117,7 +129,24 @@ client.on("messageCreate", async (message) => {
         .join("\n");
     }
 
-    embedBuilder(client, message, "GREEN", "Fila de musicas", currentQueue);
+    embedBuilder(
+      client,
+      message,
+      colors.Success,
+      "Fila de musicas",
+      currentQueue
+    );
+    return;
+  }
+
+  if (cmd === "help" || cmd === "h") {
+    embedBuilder(
+      client,
+      message,
+      colors.IDLE,
+      "Lista de comandos",
+      `**1. >play ou >p** -> Toca uma musica ou playlist. Digita ai o nome da musica ou link!\n**2. >queue ou >q** -> Mostra a lista de musicas na fila\n**3. >skip** -> Pula uma musica\n**4. >playing** -> Mostra a musica sendo tocada no momento\n**5. >stop** -> Encerra a sessão do DJ Titico\n`
+    );
     return;
   }
 
@@ -125,7 +154,7 @@ client.on("messageCreate", async (message) => {
     embedBuilder(
       client,
       message,
-      "GREEN",
+      colors.Success,
       "DJ Titico está tocando agora",
       guildQueue.nowPlaying.name
     );
@@ -138,7 +167,7 @@ player
     embedBuilder(
       client,
       textChannel,
-      "GREEN",
+      colors.Success,
       "DJ Titico esta tocando!",
       `${song.name}\  -  \`${song.duration}\` \n\npor ${song.author}`,
       song.thumbnail
@@ -148,7 +177,7 @@ player
     embedBuilder(
       client,
       textChannel,
-      "GREEN",
+      colors.Success,
       "DJ Titico adicionou uma musica!",
       `${song.name}\  -  \`${song.duration}\` \n\npor ${song.author}`,
       song.thumbnail
@@ -158,7 +187,7 @@ player
     embedBuilder(
       client,
       textChannel,
-      "GREEN",
+      colors.Success,
       "DJ Titico agora está tocando!",
       `${song.name}\  -  \`${song.duration}\` \n\npor ${song.author}`,
       song.thumbnail
@@ -168,7 +197,7 @@ player
     embedBuilder(
       client,
       textChannel,
-      "RED",
+      colors.error,
       "DJ Titico ta com defeito",
       "Algum problema ocorreu! Favor contatar Titico para solução"
     );
