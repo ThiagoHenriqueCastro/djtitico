@@ -1,6 +1,6 @@
 import { Client, Intents, MessageEmbed } from "discord.js";
 import { Player } from "discord-music-player";
-import lyricsFinder from "lyrics-finder";
+import solenolyrics from "solenolyrics";
 // import * as dotenv from "dotenv";
 // dotenv.config();
 
@@ -166,10 +166,10 @@ client.on("messageCreate", async (message) => {
 
   if (cmd === "lyrics" || cmd === "l") {
     try {
-      let _lyrics = await lyricsFinder(
-        guildQueue.nowPlaying.author,
+      var _lyrics = await solenolyrics.requestLyricsFor(
         guildQueue.nowPlaying.name
       );
+
       if (_lyrics)
         embedBuilder(
           client,
