@@ -1,8 +1,8 @@
 import { Client, Intents, MessageEmbed } from "discord.js";
 import { Player } from "discord-music-player";
-import solenolyrics from "solenolyrics";
-// import * as dotenv from "dotenv";
-// dotenv.config();
+import lyricsFinder from "@sujalgoel/lyrics-finder";
+//import * as dotenv from "dotenv";
+//dotenv.config();
 
 const client = new Client({
   intents: [
@@ -96,6 +96,7 @@ client.on("messageCreate", async (message) => {
         })
       : queue.play(search).catch((err) => {
           if (!guildQueue) queue.stop();
+          console.log(err);
         });
 
     return;
@@ -166,19 +167,22 @@ client.on("messageCreate", async (message) => {
 
   if (cmd === "lyrics" || cmd === "l") {
     try {
-      var _lyrics = await solenolyrics.requestLyricsFor(
-        guildQueue.nowPlaying.name
-      );
-
-      if (_lyrics)
-        embedBuilder(
-          client,
-          message,
-          colors.Success,
-          guildQueue.nowPlaying.name,
-          _lyrics
-        );
-      else throw "No lyrics found!\n" + _lyrics;
+      lyricsFinder
+        .LyricsFinder(
+          `${guildQueue.nowPlaying.name} - ${guildQueue.nowPlaying.author}}`
+        )
+        .then((_lyrics) => {
+          embedBuilder(
+            client,
+            message,
+            colors.IDLE,
+            guildQueue.nowPlaying.name,
+            _lyrics
+          );
+        })
+        .catch((err) => {
+          throw "No lyrics found!\n" + _lyrics;
+        });
     } catch (err) {
       embedBuilder(
         client,

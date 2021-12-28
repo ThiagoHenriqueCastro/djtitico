@@ -7,7 +7,7 @@
   "license": "ISC",
   "type": "module",
   "engines": {
-    "node": "16.0.0"
+    "node": "16.13.0"
   },
   "scripts": {
     "start": "npm i lyrics-finder -g && node index.js",
@@ -15,8 +15,9 @@
     "tsc": "tsc"
   },
   "dependencies": {
-    "@discordjs/opus": "^0.7.0",
+    "@discordjs/opus": "github:discordjs/opus",
     "@discordjs/voice": "^0.7.5",
+    "@sujalgoel/lyrics-finder": "^1.0.0",
     "discord-music-player": "^8.3.1",
     "discord.js": "^13.3.1",
     "distube": "^3.0.3",
@@ -24,9 +25,7 @@
     "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "^2.1.2",
     "libsodium-wrappers": "^0.7.9",
-    "lyrics-finder": "^21.7.0",
     "node-opus": "^0.3.3",
-    "solenolyrics": "^5.0.0",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.9.2"
   }
 }
